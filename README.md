@@ -2,6 +2,23 @@
 
 A complete, synchronous Serial Peripheral Interface (SPI) Master and Slave system implemented in Verilog. Designed and synthesised on FPGA using Vivado. 
 
+## Supported Interface
+
+| Signal | Driven by | Description |
+|---|---|---|
+| `clk` | Testbench/system | Master timing reference |
+| `rst` | Testbench/system | Synchronous master reset |
+| `tx_enb` | Controller | Starts a single-byte transfer |
+| `sclk` | Master | Serial clock derived from `clk` |
+| `cs` | Master | Active-low slave select |
+| `mosi` | Master | MSB-first serial data |
+| `dout[7:0]` | Slave | Received byte |
+| `done` | Slave | One-cycle indication that reception completed |
+
+The current implementation is intentionally transmit-only: it supports one-way
+master-to-slave transfers through `MOSI` and does not implement `MISO` or
+configurable SPI modes.
+
 ---
 
 ## Architecture Overview
@@ -34,6 +51,11 @@ A purely sequential shift-register-based module.
 
 The testbench (`spi_tb.v`) instantiates the Top module, generates a high-speed system clock, applies a reset, and triggers a single-byte transmission via `tx_enable`.
 
+The included waveform and synthesis images are reference results from the
+Vivado flow. To reproduce them, add `rtl/spi.v` and `tb/spi_tb.v` to a Vivado
+project, set `spi_tb` as the simulation top, and use `top` as the design
+hierarchy for synthesis.
+
 ---
 
 ## Debugging & Lessons Learned
@@ -54,7 +76,6 @@ During the development of this RTL, several key FPGA design principles were rein
 
 * **Configurable CPOL/CPHA:** Parameterise the clock polarity and phase to support all 4 standard SPI modes.
 * **MISO Implementation:** Add the `MISO` (Master In, Slave Out) line to allow full-duplex, two-way communication.
-
 
 
 
